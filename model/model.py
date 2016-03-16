@@ -68,8 +68,8 @@ def parse_rect( string ):
 fn_mif = "classifier.mif"
 fn_treshold_addr = "treshold_addr"
 fn_ii = 'II'
-variance = 14.401331
-
+#variance = 14.401331
+variance = 4666.031290
 
 
 
@@ -106,24 +106,28 @@ for rom_addr, classifier in enumerate( rom_classifier ):
       ii_addr2 = rect[1] * 21 + rect[0] + rect[2]
       ii_addr3 = ( rect[1] + rect[3] ) * 21  + rect[0] + rect[2]
       weight = rect[4]
-      weight = float( weight )* ( 1.0/( 18 * 18 ) )
-      sum_rect =( ii[ii_addr0] - ii[ii_addr1] - ii[ii_addr2] + ii[ii_addr3] )
-      sum_ii = sum_ii + sum_rect * weight
-   
+      weight = float( weight )#* ( 1.0/( 18 * 18 ) )
+      sum_rect =( ii[ii_addr0] - ii[ii_addr1] - ii[ii_addr2] + ii[ii_addr3] ) * weight
+      #print '   %i' % sum_rect
+      #if( weight != 0 ):
+      #  print ii_addr0, ii_addr1, ii_addr2, ii_addr3
+      #  print ii[ii_addr0] , ii[ii_addr1] , ii[ii_addr2],  ii[ii_addr3] 
+      sum_ii = sum_ii + sum_rect 
+   # print sum_ii, feature_treshold.float * variance 
     if( sum_ii <= ( feature_treshold.float * variance ) ):
       sum_feature = sum_feature + left_val.float
     else:
       sum_feature = sum_feature + right_val.float
-    
+    #print sum_feature 
     continue
 
   if( type_str == 'stage_treshold' ):
     stage_treshold = BitArray( bin = classifier )
     num_stage_treshold = num_stage_treshold + 1
     
-    print 'Sum_Cascade      ', sum_ii
+    #print 'Sum_Cascade      ', sum_ii
     print 'Sum_Feature      ', sum_feature
-    print "Stage_Treshold   ", stage_treshold.float
+    #print "Stage_Treshold   ", stage_treshold.float
     if( stage_treshold.float > sum_feature ):
       print "Number Cascade   ", num_stage_treshold
       break

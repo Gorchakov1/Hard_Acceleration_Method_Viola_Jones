@@ -34,7 +34,7 @@
 //agreement for further details.
 
 
-//altfp_add_sub CBX_AUTO_BLACKBOX="ALL" DENORMAL_SUPPORT="NO" DEVICE_FAMILY="Cyclone V" DIRECTION="ADD" OPTIMIZE="SPEED" PIPELINE=7 REDUCED_FUNCTIONALITY="NO" WIDTH_EXP=8 WIDTH_MAN=23 aclr clock dataa datab result
+//altfp_add_sub CBX_AUTO_BLACKBOX="ALL" DENORMAL_SUPPORT="NO" DEVICE_FAMILY="Cyclone V" DIRECTION="ADD" OPTIMIZE="SPEED" PIPELINE=8 REDUCED_FUNCTIONALITY="NO" WIDTH_EXP=8 WIDTH_MAN=23 aclr clock dataa datab result
 //VERSION_BEGIN 14.1 cbx_altbarrel_shift 2014:12:03:18:16:05:SJ cbx_altfp_add_sub 2014:12:03:18:16:05:SJ cbx_altpriority_encoder 2014:12:03:18:16:05:SJ cbx_cycloneii 2014:12:03:18:16:05:SJ cbx_lpm_add_sub 2014:12:03:18:16:05:SJ cbx_lpm_compare 2014:12:03:18:16:05:SJ cbx_mgl 2014:12:03:20:51:57:SJ cbx_stratix 2014:12:03:18:16:05:SJ cbx_stratixii 2014:12:03:18:16:05:SJ  VERSION_END
 // synthesis VERILOG_INPUT_VERSION VERILOG_2001
 // altera message_off 10463
@@ -703,11 +703,11 @@ module  add_fp_altpriority_encoder_e48
 		q = {wire_altpriority_encoder21_zero, (({4{wire_altpriority_encoder21_zero}} & wire_altpriority_encoder22_q) | ({4{(~ wire_altpriority_encoder21_zero)}} & wire_altpriority_encoder21_q))};
 endmodule //add_fp_altpriority_encoder_e48
 
-//synthesis_resources = lpm_add_sub 14 lpm_compare 1 reg 282 
+//synthesis_resources = lpm_add_sub 14 lpm_compare 1 reg 354 
 //synopsys translate_off
 `timescale 1 ps / 1 ps
 //synopsys translate_on
-module  add_fp_altfp_add_sub_pbj
+module  add_fp_altfp_add_sub_qbj
 	( 
 	aclr,
 	clock,
@@ -731,6 +731,12 @@ module  add_fp_altfp_add_sub_pbj
 	wire  [25:0]   wire_rbarrel_shift_result;
 	wire  [4:0]   wire_leading_zeroes_cnt_q;
 	wire  [4:0]   wire_trailing_zeros_cnt_q;
+	reg	[8:0]	aligned_dataa_exp_dffe12;
+	reg	[23:0]	aligned_dataa_man_dffe12;
+	reg	aligned_dataa_sign_dffe12;
+	reg	[8:0]	aligned_datab_exp_dffe12;
+	reg	[23:0]	aligned_datab_man_dffe12;
+	reg	aligned_datab_sign_dffe12;
 	reg	both_inputs_are_infinite_dffe1;
 	reg	[7:0]	data_exp_dffe1;
 	reg	[25:0]	dataa_man_dffe1;
@@ -758,6 +764,10 @@ module  add_fp_altfp_add_sub_pbj
 	reg	infinity_magnitude_sub_dffe3;
 	reg	infinity_magnitude_sub_dffe31;
 	reg	infinity_magnitude_sub_dffe4;
+	reg	input_dataa_infinite_dffe12;
+	reg	input_dataa_nan_dffe12;
+	reg	input_datab_infinite_dffe12;
+	reg	input_datab_nan_dffe12;
 	reg	input_is_infinite_dffe1;
 	reg	input_is_infinite_dffe2;
 	reg	input_is_infinite_dffe21;
@@ -1337,6 +1347,48 @@ module  add_fp_altfp_add_sub_pbj
 	.q(wire_trailing_zeros_cnt_q));
 	// synopsys translate_off
 	initial
+		aligned_dataa_exp_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) aligned_dataa_exp_dffe12 <= 9'b0;
+		else if  (clk_en == 1'b1)   aligned_dataa_exp_dffe12 <= aligned_dataa_exp_dffe12_wi;
+	// synopsys translate_off
+	initial
+		aligned_dataa_man_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) aligned_dataa_man_dffe12 <= 24'b0;
+		else if  (clk_en == 1'b1)   aligned_dataa_man_dffe12 <= aligned_dataa_man_dffe12_wi;
+	// synopsys translate_off
+	initial
+		aligned_dataa_sign_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) aligned_dataa_sign_dffe12 <= 1'b0;
+		else if  (clk_en == 1'b1)   aligned_dataa_sign_dffe12 <= aligned_dataa_sign_dffe12_wi;
+	// synopsys translate_off
+	initial
+		aligned_datab_exp_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) aligned_datab_exp_dffe12 <= 9'b0;
+		else if  (clk_en == 1'b1)   aligned_datab_exp_dffe12 <= aligned_datab_exp_dffe12_wi;
+	// synopsys translate_off
+	initial
+		aligned_datab_man_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) aligned_datab_man_dffe12 <= 24'b0;
+		else if  (clk_en == 1'b1)   aligned_datab_man_dffe12 <= aligned_datab_man_dffe12_wi;
+	// synopsys translate_off
+	initial
+		aligned_datab_sign_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) aligned_datab_sign_dffe12 <= 1'b0;
+		else if  (clk_en == 1'b1)   aligned_datab_sign_dffe12 <= aligned_datab_sign_dffe12_wi;
+	// synopsys translate_off
+	initial
 		both_inputs_are_infinite_dffe1 = 0;
 	// synopsys translate_on
 	always @ ( posedge clock or  posedge aclr)
@@ -1524,6 +1576,34 @@ module  add_fp_altfp_add_sub_pbj
 	always @ ( posedge clock or  posedge aclr)
 		if (aclr == 1'b1) infinity_magnitude_sub_dffe4 <= 1'b0;
 		else if  (clk_en == 1'b1)   infinity_magnitude_sub_dffe4 <= infinity_magnitude_sub_dffe4_wi;
+	// synopsys translate_off
+	initial
+		input_dataa_infinite_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) input_dataa_infinite_dffe12 <= 1'b0;
+		else if  (clk_en == 1'b1)   input_dataa_infinite_dffe12 <= input_dataa_infinite_dffe12_wi;
+	// synopsys translate_off
+	initial
+		input_dataa_nan_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) input_dataa_nan_dffe12 <= 1'b0;
+		else if  (clk_en == 1'b1)   input_dataa_nan_dffe12 <= input_dataa_nan_dffe12_wi;
+	// synopsys translate_off
+	initial
+		input_datab_infinite_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) input_datab_infinite_dffe12 <= 1'b0;
+		else if  (clk_en == 1'b1)   input_datab_infinite_dffe12 <= input_datab_infinite_dffe12_wi;
+	// synopsys translate_off
+	initial
+		input_datab_nan_dffe12 = 0;
+	// synopsys translate_on
+	always @ ( posedge clock or  posedge aclr)
+		if (aclr == 1'b1) input_datab_nan_dffe12 <= 1'b0;
+		else if  (clk_en == 1'b1)   input_datab_nan_dffe12 <= input_datab_nan_dffe12_wi;
 	// synopsys translate_off
 	initial
 		input_is_infinite_dffe1 = 0;
@@ -1785,6 +1865,9 @@ module  add_fp_altfp_add_sub_pbj
 		else if  (clk_en == 1'b1)   zero_man_sign_dffe21 <= zero_man_sign_dffe21_wi;
 	lpm_add_sub   add_sub1
 	( 
+	.aclr(aclr),
+	.clken(clk_en),
+	.clock(clock),
 	.cout(),
 	.dataa(aligned_dataa_exp_w),
 	.datab(aligned_datab_exp_w),
@@ -1794,22 +1877,23 @@ module  add_fp_altfp_add_sub_pbj
 	// synopsys translate_off
 	`endif
 	,
-	.aclr(1'b0),
 	.add_sub(1'b1),
-	.cin(),
-	.clken(1'b1),
-	.clock(1'b0)
+	.cin()
 	`ifndef FORMAL_VERIFICATION
 	// synopsys translate_on
 	`endif
 	);
 	defparam
 		add_sub1.lpm_direction = "SUB",
+		add_sub1.lpm_pipeline = 1,
 		add_sub1.lpm_representation = "SIGNED",
 		add_sub1.lpm_width = 9,
 		add_sub1.lpm_type = "lpm_add_sub";
 	lpm_add_sub   add_sub2
 	( 
+	.aclr(aclr),
+	.clken(clk_en),
+	.clock(clock),
 	.cout(),
 	.dataa(aligned_datab_exp_w),
 	.datab(aligned_dataa_exp_w),
@@ -1819,17 +1903,15 @@ module  add_fp_altfp_add_sub_pbj
 	// synopsys translate_off
 	`endif
 	,
-	.aclr(1'b0),
 	.add_sub(1'b1),
-	.cin(),
-	.clken(1'b1),
-	.clock(1'b0)
+	.cin()
 	`ifndef FORMAL_VERIFICATION
 	// synopsys translate_on
 	`endif
 	);
 	defparam
 		add_sub2.lpm_direction = "SUB",
+		add_sub2.lpm_pipeline = 1,
 		add_sub2.lpm_representation = "SIGNED",
 		add_sub2.lpm_width = 9,
 		add_sub2.lpm_type = "lpm_add_sub";
@@ -2117,7 +2199,7 @@ module  add_fp_altfp_add_sub_pbj
 		add_sub_w2 = (~ (dataa_sign_dffe1_wo ^ datab_sign_dffe1_wo)),
 		adder_upper_w = man_intermediate_res_w[25:13],
 		aligned_dataa_exp_dffe12_wi = aligned_dataa_exp_w,
-		aligned_dataa_exp_dffe12_wo = aligned_dataa_exp_dffe12_wi,
+		aligned_dataa_exp_dffe12_wo = aligned_dataa_exp_dffe12,
 		aligned_dataa_exp_dffe13_wi = aligned_dataa_exp_dffe12_wo,
 		aligned_dataa_exp_dffe13_wo = aligned_dataa_exp_dffe13_wi,
 		aligned_dataa_exp_dffe14_wi = aligned_dataa_exp_dffe13_wo,
@@ -2126,7 +2208,7 @@ module  add_fp_altfp_add_sub_pbj
 		aligned_dataa_exp_dffe15_wo = aligned_dataa_exp_dffe15_wi,
 		aligned_dataa_exp_w = {1'b0, ({8{(~ input_dataa_denormal_dffe11_wo)}} & dataa_dffe11_wo[30:23])},
 		aligned_dataa_man_dffe12_wi = aligned_dataa_man_w[25:2],
-		aligned_dataa_man_dffe12_wo = aligned_dataa_man_dffe12_wi,
+		aligned_dataa_man_dffe12_wo = aligned_dataa_man_dffe12,
 		aligned_dataa_man_dffe13_wi = aligned_dataa_man_dffe12_wo,
 		aligned_dataa_man_dffe13_wo = aligned_dataa_man_dffe13_wi,
 		aligned_dataa_man_dffe14_wi = aligned_dataa_man_dffe13_wo,
@@ -2136,7 +2218,7 @@ module  add_fp_altfp_add_sub_pbj
 		aligned_dataa_man_dffe15_wo = aligned_dataa_man_dffe15_wi,
 		aligned_dataa_man_w = {(((~ input_dataa_infinite_dffe11_wo) & (~ input_dataa_denormal_dffe11_wo)) & (~ input_dataa_zero_dffe11_wo)), ({23{(~ input_dataa_denormal_dffe11_wo)}} & dataa_dffe11_wo[22:0]), {2{1'b0}}},
 		aligned_dataa_sign_dffe12_wi = aligned_dataa_sign_w,
-		aligned_dataa_sign_dffe12_wo = aligned_dataa_sign_dffe12_wi,
+		aligned_dataa_sign_dffe12_wo = aligned_dataa_sign_dffe12,
 		aligned_dataa_sign_dffe13_wi = aligned_dataa_sign_dffe12_wo,
 		aligned_dataa_sign_dffe13_wo = aligned_dataa_sign_dffe13_wi,
 		aligned_dataa_sign_dffe14_wi = aligned_dataa_sign_dffe13_wo,
@@ -2145,7 +2227,7 @@ module  add_fp_altfp_add_sub_pbj
 		aligned_dataa_sign_dffe15_wo = aligned_dataa_sign_dffe15_wi,
 		aligned_dataa_sign_w = dataa_dffe11_wo[31],
 		aligned_datab_exp_dffe12_wi = aligned_datab_exp_w,
-		aligned_datab_exp_dffe12_wo = aligned_datab_exp_dffe12_wi,
+		aligned_datab_exp_dffe12_wo = aligned_datab_exp_dffe12,
 		aligned_datab_exp_dffe13_wi = aligned_datab_exp_dffe12_wo,
 		aligned_datab_exp_dffe13_wo = aligned_datab_exp_dffe13_wi,
 		aligned_datab_exp_dffe14_wi = aligned_datab_exp_dffe13_wo,
@@ -2154,7 +2236,7 @@ module  add_fp_altfp_add_sub_pbj
 		aligned_datab_exp_dffe15_wo = aligned_datab_exp_dffe15_wi,
 		aligned_datab_exp_w = {1'b0, ({8{(~ input_datab_denormal_dffe11_wo)}} & datab_dffe11_wo[30:23])},
 		aligned_datab_man_dffe12_wi = aligned_datab_man_w[25:2],
-		aligned_datab_man_dffe12_wo = aligned_datab_man_dffe12_wi,
+		aligned_datab_man_dffe12_wo = aligned_datab_man_dffe12,
 		aligned_datab_man_dffe13_wi = aligned_datab_man_dffe12_wo,
 		aligned_datab_man_dffe13_wo = aligned_datab_man_dffe13_wi,
 		aligned_datab_man_dffe14_wi = aligned_datab_man_dffe13_wo,
@@ -2164,7 +2246,7 @@ module  add_fp_altfp_add_sub_pbj
 		aligned_datab_man_dffe15_wo = aligned_datab_man_dffe15_wi,
 		aligned_datab_man_w = {(((~ input_datab_infinite_dffe11_wo) & (~ input_datab_denormal_dffe11_wo)) & (~ input_datab_zero_dffe11_wo)), ({23{(~ input_datab_denormal_dffe11_wo)}} & datab_dffe11_wo[22:0]), {2{1'b0}}},
 		aligned_datab_sign_dffe12_wi = aligned_datab_sign_w,
-		aligned_datab_sign_dffe12_wo = aligned_datab_sign_dffe12_wi,
+		aligned_datab_sign_dffe12_wo = aligned_datab_sign_dffe12,
 		aligned_datab_sign_dffe13_wi = aligned_datab_sign_dffe12_wo,
 		aligned_datab_sign_dffe13_wo = aligned_datab_sign_dffe13_wi,
 		aligned_datab_sign_dffe14_wi = aligned_datab_sign_dffe13_wo,
@@ -2357,7 +2439,7 @@ module  add_fp_altfp_add_sub_pbj
 		input_dataa_infinite_dffe11_wi = input_dataa_infinite_w,
 		input_dataa_infinite_dffe11_wo = input_dataa_infinite_dffe11_wi,
 		input_dataa_infinite_dffe12_wi = input_dataa_infinite_dffe11_wo,
-		input_dataa_infinite_dffe12_wo = input_dataa_infinite_dffe12_wi,
+		input_dataa_infinite_dffe12_wo = input_dataa_infinite_dffe12,
 		input_dataa_infinite_dffe13_wi = input_dataa_infinite_dffe12_wo,
 		input_dataa_infinite_dffe13_wo = input_dataa_infinite_dffe13_wi,
 		input_dataa_infinite_dffe14_wi = input_dataa_infinite_dffe13_wo,
@@ -2368,7 +2450,7 @@ module  add_fp_altfp_add_sub_pbj
 		input_dataa_nan_dffe11_wi = input_dataa_nan_w,
 		input_dataa_nan_dffe11_wo = input_dataa_nan_dffe11_wi,
 		input_dataa_nan_dffe12_wi = input_dataa_nan_dffe11_wo,
-		input_dataa_nan_dffe12_wo = input_dataa_nan_dffe12_wi,
+		input_dataa_nan_dffe12_wo = input_dataa_nan_dffe12,
 		input_dataa_nan_w = (exp_a_all_one_w[7] & man_a_not_zero_w[22]),
 		input_dataa_zero_dffe11_wi = input_dataa_zero_w,
 		input_dataa_zero_dffe11_wo = input_dataa_zero_dffe11_wi,
@@ -2379,7 +2461,7 @@ module  add_fp_altfp_add_sub_pbj
 		input_datab_infinite_dffe11_wi = input_datab_infinite_w,
 		input_datab_infinite_dffe11_wo = input_datab_infinite_dffe11_wi,
 		input_datab_infinite_dffe12_wi = input_datab_infinite_dffe11_wo,
-		input_datab_infinite_dffe12_wo = input_datab_infinite_dffe12_wi,
+		input_datab_infinite_dffe12_wo = input_datab_infinite_dffe12,
 		input_datab_infinite_dffe13_wi = input_datab_infinite_dffe12_wo,
 		input_datab_infinite_dffe13_wo = input_datab_infinite_dffe13_wi,
 		input_datab_infinite_dffe14_wi = input_datab_infinite_dffe13_wo,
@@ -2390,7 +2472,7 @@ module  add_fp_altfp_add_sub_pbj
 		input_datab_nan_dffe11_wi = input_datab_nan_w,
 		input_datab_nan_dffe11_wo = input_datab_nan_dffe11_wi,
 		input_datab_nan_dffe12_wi = input_datab_nan_dffe11_wo,
-		input_datab_nan_dffe12_wo = input_datab_nan_dffe12_wi,
+		input_datab_nan_dffe12_wo = input_datab_nan_dffe12,
 		input_datab_nan_w = (exp_b_all_one_w[7] & man_b_not_zero_w[22]),
 		input_datab_zero_dffe11_wi = input_datab_zero_w,
 		input_datab_zero_dffe11_wo = input_datab_zero_dffe11_wi,
@@ -2613,7 +2695,7 @@ module  add_fp_altfp_add_sub_pbj
 		zero_man_sign_dffe27_wo = zero_man_sign_dffe27_wi,
 		zero_man_sign_dffe2_wi = (dataa_sign_dffe25_wo & add_sub_dffe25_wo),
 		zero_man_sign_dffe2_wo = zero_man_sign_dffe2;
-endmodule //add_fp_altfp_add_sub_pbj
+endmodule //add_fp_altfp_add_sub_qbj
 //VALID FILE
 
 
@@ -2636,7 +2718,7 @@ module add_fp (
 	wire [31:0] sub_wire0;
 	wire [31:0] result = sub_wire0[31:0];
 
-	add_fp_altfp_add_sub_pbj	add_fp_altfp_add_sub_pbj_component (
+	add_fp_altfp_add_sub_qbj	add_fp_altfp_add_sub_qbj_component (
 				.aclr (aclr),
 				.clock (clock),
 				.dataa (dataa),
@@ -2657,7 +2739,7 @@ endmodule
 // Retrieval info: CONSTANT: DIRECTION STRING "ADD"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone V"
 // Retrieval info: CONSTANT: OPTIMIZE STRING "SPEED"
-// Retrieval info: CONSTANT: PIPELINE NUMERIC "7"
+// Retrieval info: CONSTANT: PIPELINE NUMERIC "8"
 // Retrieval info: CONSTANT: REDUCED_FUNCTIONALITY STRING "NO"
 // Retrieval info: CONSTANT: WIDTH_EXP NUMERIC "8"
 // Retrieval info: CONSTANT: WIDTH_MAN NUMERIC "23"

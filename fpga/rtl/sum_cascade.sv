@@ -90,7 +90,7 @@ add_fp _sum(
 
 delay_signal #(
   .DATA_WIDTH  ( 1 ),
-  .CLOCK_CNT   ( 8 )
+  .CLOCK_CNT   ( 9 )
 ) delay_stage_threshold_val(
   .clk_i      ( clk_i                    ),
   .rst_i      ( rst_i                    ),

@@ -10,4 +10,4 @@ def int_to_binary(value, bits):
 def float2binary( value ):
  return int_to_binary(float32_bit_pattern( value ), 32)
 
-
+print float2binary(4666.031290 )

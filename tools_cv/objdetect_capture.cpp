@@ -31,8 +31,7 @@ int main( int argc, const char** argv )
 
   //-- 1. Load the cascades
   if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
-
-
+  
   ipl_frame= cvLoadImage( "capture.jpg" , 1|CV_LOAD_IMAGE_ANYDEPTH );
   frame = cvarrToMat( ipl_frame );
 

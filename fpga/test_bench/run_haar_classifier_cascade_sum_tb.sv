@@ -19,7 +19,7 @@ initial
    clk = 1'b0;
    forever
      begin
-       #10.0 clk = ~clk;
+       #4.0 clk = ~clk;
      end
  end
 

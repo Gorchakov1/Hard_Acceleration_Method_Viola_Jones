@@ -39,7 +39,7 @@ logic [1:0] num_rect;
 logic val;
 delay_signal #(
   .DATA_WIDTH  ( 1 ),
-  .CLOCK_CNT   ( 10 )
+  .CLOCK_CNT   ( 11 )
 ) delay_sum_cascade (
   .clk_i      ( clk_i                    ),
   .rst_i      ( rst_i                    ),  
@@ -75,7 +75,9 @@ always_ff @( posedge clk_i or posedge rst_i )
       point[point_rect] <= ii_data_i;
   end
 
+
 integer signed sum_rect [2:0];
+integer signed sum_rect_weight [2:0];
 always_ff @( posedge clk_i or posedge rst_i )
   begin
     if( rst_i )
@@ -85,9 +87,25 @@ always_ff @( posedge clk_i or posedge rst_i )
       end
     else
       begin
-        sum_rect[num_rect_d1] <= ( point[0] - point[1] + point[2] - point[3] ) * weight[num_rect_d1];
+        sum_rect[num_rect_d1] <= ( point[0] - point[1] + point[2] - point[3] );
       end
   end
+always_ff @( posedge clk_i or posedge rst_i )
+  begin
+    if( rst_i )
+      begin
+        for( int i = 0; i < 3 ; i++ )
+          sum_rect[i] <= '0;
+      end
+    else
+      begin
+        for( int i = 0; i < 3 ; i++ )
+          sum_rect_weight[i] <= sum_rect[i] * weight[i];
+      end
+  end
+
+
+
 
 logic [31:0] sum_cascade;
 always_ff @( posedge clk_i or posedge rst_i )
@@ -95,12 +113,12 @@ always_ff @( posedge clk_i or posedge rst_i )
     if( rst_i )
       sum_cascade <= '0;
     else
-      sum_cascade <= sum_rect[2] + sum_rect[1] - sum_rect[0];
+      sum_cascade <= sum_rect_weight[2] + sum_rect_weight[1] - sum_rect_weight[0];
   end
 
 int2float i2f(
   .clock  ( clk_i         ),
-  .aclr   ( rst_i        ),
+  .aclr   ( rst_i         ),
   .dataa  ( sum_cascade   ),
   .result ( sum_cascade_o )
 );
