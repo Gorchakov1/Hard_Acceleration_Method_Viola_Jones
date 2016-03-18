@@ -61,23 +61,23 @@ localparam CALC_1 = 2'b01;
 localparam CALC_2 = 2'b10;
 localparam CALC_3 = 2'b11;
 
-logic rect_val;
 logic rect_val_d1;
+logic rect_val_d2;
 logic start_cnt_addr;
 
 always_ff @( posedge clk_i or posedge rst_i )
   begin
     if( rst_i )
       begin
-        rect_val        <= 1'b0;
         rect_val_d1     <= 1'b0;
+        rect_val_d2     <= 1'b0;
         start_cnt_addr  <= 1'b0;
       end
     else
       begin
-        rect_val       <= rect_val_i;
-        rect_val_d1    <= rect_val;
-        start_cnt_addr <= ~rect_val & rect_val_d1;
+        rect_val_d1    <= rect_val_i;
+        rect_val_d2    <= rect_val_d1;
+        start_cnt_addr <= ~rect_val_d1 & rect_val_d2;
       end
   end
 
@@ -90,7 +90,7 @@ always_ff @( posedge clk_i or posedge rst_i )
       state <= 2'b00;
     else
       begin
-        if( ( state != 0 ) || rect_val_d1 )
+        if( ( state != 0 ) || rect_val_d2 )
           state <= state + 1'b1;
         else
           state <= '0;
@@ -117,16 +117,16 @@ always_ff @( posedge clk_i or posedge rst_i )
         case( state )
           CALC_0 :
             begin
-              if( rect_val )
+              if( rect_val_d1 )
                 begin
-									x[0] <= rect_1.x;
-									y[0] <= rect_1.y;
+                  x[0] <= rect_1.x;
+                  y[0] <= rect_1.y;
  
-									x[1] <= rect_1.x1;
-									y[1] <= rect_1.y1;
-
-									x[2] <= rect_2.x2;
-									y[2] <= rect_2.y2;
+                  x[1] <= rect_1.x1;
+                  y[1] <= rect_1.y1;
+                  
+                  x[2] <= rect_2.x2;
+                  y[2] <= rect_2.y2;
                 end
             end
           
@@ -158,14 +158,14 @@ always_ff @( posedge clk_i or posedge rst_i )
             end
           default :
             begin
-							x[0] <= rect_1.x;
-							y[0] <= rect_1.y;
+              x[0] <= rect_1.x;
+              y[0] <= rect_1.y;
 																
-							x[1] <= rect_1.x1;
-							y[1] <= rect_1.y1;
+              x[1] <= rect_1.x1;
+              y[1] <= rect_1.y1;
 																
-							x[2] <= rect_2.x2;
-							y[2] <= rect_2.y2;
+              x[2] <= rect_2.x2;
+              y[2] <= rect_2.y2;
             end
         endcase
       end

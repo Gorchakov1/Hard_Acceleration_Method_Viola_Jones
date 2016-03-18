@@ -11,12 +11,13 @@ module delay_signal #(
 );
 logic [DATA_WIDTH-1:0] signal [CLOCK_CNT-1:0];
 
+genvar g;
 generate
 
   for( genvar g = 0; g < CLOCK_CNT; g++ )
-     begin
+     begin : gen_delay
        always_ff @( posedge clk_i or posedge rst_i )
-          begin
+          begin 
             if( rst_i )
               signal[g] <= '0;
             else
