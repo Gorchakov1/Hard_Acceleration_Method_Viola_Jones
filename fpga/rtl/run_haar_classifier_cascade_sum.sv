@@ -1,9 +1,10 @@
 module run_haar_classifier_cascade_sum 
 #(
-  ADDR_WIDTH_II        = $clog2( 21 * 21 ),
-  NUM_WORDS_ROM        = 10697,
-  ADDR_WIDTH_ROM       = $clog2( NUM_WORDS_ROM ),
-  STAGE_CLASSIFIER_CNT = 22
+  parameter LENGHT_LINE_II       = 21,
+  parameter NUM_WORDS_ROM        = 10697,
+  parameter ADDR_WIDTH_II        = $clog2( LENGHT_LINE_II * LENGHT_LINE_II ),
+  parameter ADDR_WIDTH_ROM       = $clog2( NUM_WORDS_ROM ),
+  parameter STAGE_CLASSIFIER_CNT = 22
 )
 (
   input                          clk_i,
@@ -19,9 +20,9 @@ module run_haar_classifier_cascade_sum
                                  
   output logic                   done_o,
   output logic                   result_o
-
-
 );
+
+
 
 logic                      break_s;
 logic                      next_stage;
@@ -79,7 +80,8 @@ logic                     thresholds_val;
 logic [31:0]              stage_threshold;
 logic                     stage_threshold_val;
 word_parser #(
-  .ADDR_WIDTH            ( ADDR_WIDTH_II             )
+  .ADDR_WIDTH            ( ADDR_WIDTH_II             ),
+  .LENGHT_LINE_II        ( LENGHT_LINE_II            )
                                                    
 ) word (                                           
   .clk_i                 ( clk_i                     ),

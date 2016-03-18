@@ -1,11 +1,11 @@
 vlib work
 
-vlog -sv ../rtl/defs.hv
+vlog -sv ../rtl/defs.vh
 vlog -sv ../rtl/delay_signal.sv
 
 vlog -sv ../rtl/run_haar_classifier_cascade_sum.sv
 vlog -sv ../rtl/rect_parser.sv
-vlog -sv ../rtl/calk_sum.sv
+vlog -sv ../rtl/calc_sum.sv
 vlog -sv ../rtl/rom_control.sv
 vlog -sv ../rtl/sum_cascade.sv
 vlog -sv ../rtl/word_parser.sv

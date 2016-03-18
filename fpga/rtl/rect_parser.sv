@@ -1,6 +1,17 @@
-`include "defs.hv"
+/*
+
+  Модуль преобразует из данных точках прямоугольника 
+  в адреса в памяти интегрального изображения ( ram_ii ) и находит 
+  веса пямоугольников.
+
+  Т.к. у памяти всего 1 порт для чтения то требуется задержка, чтобы
+  новые прямоугольники не появились раньше, чем прочитались старые. 
+*/
+
+`include "defs.vh"
 module rect_parser #(
-  ADDR_WIDTH = 30
+  parameter ADDR_WIDTH  = 30,
+  parameter LENGHT_LINE = 21 
 
 )
 (
@@ -20,8 +31,13 @@ module rect_parser #(
   output logic                     wait_o
 );
 
-rect1 rect_1;
-rect2 rect_2;
+// Максимум 3 прямоугольника => 12 точек ( адресов )
+localparam POINT_CNT = 12;
+
+rect1_t rect_1;
+rect2_t rect_2;
+
+// Парсим с помощью структур
 always_ff @( posedge clk_i or posedge rst_i )
   begin
     if( rst_i)
@@ -31,19 +47,19 @@ always_ff @( posedge clk_i or posedge rst_i )
      end
     else
       begin
-        if( type_rect_i )
-          begin
-            if( rect_val_i )
-              rect_2 <= rect_i;
-          end
-        else
-          begin
-            if( rect_val_i )
-              rect_1 <= rect_i;
-          end
+        if( rect_val_i  & type_rect_i )
+          rect_2 <= rect_i;
+        if( rect_val_i  & ~type_rect_i )
+          rect_1 <= rect_i;
       end
   end
 
+
+// Расчитываем точки ( адреса ) прямоугольика
+localparam CALC_0 = 2'b00;
+localparam CALC_1 = 2'b01;
+localparam CALC_2 = 2'b10;
+localparam CALC_3 = 2'b11;
 
 logic rect_val;
 logic rect_val_d1;
@@ -66,68 +82,40 @@ always_ff @( posedge clk_i or posedge rst_i )
   end
 
 
+logic [1:0] state, last_state;
 
-enum logic [1:0] { CALK_0 = 2'b00,
-                   CALK_1 = 2'b01,
-                   CALK_2 = 2'b10,
-                   CALK_3 = 2'b11
-                 } state, next_state;
 always_ff @( posedge clk_i or posedge rst_i )
   begin
     if( rst_i )
-      state <= CALK_0;
+      state <= 2'b00;
     else
-      state <= next_state;
+      begin
+        if( ( state != 0 ) || rect_val_d1 )
+          state <= state + 1'b1;
+        else
+          state <= '0;
+      end
   end
-always_comb
-  begin
-    next_state = state;
-    case( state )
-      CALK_0 :
-        begin
-          if( rect_val_d1 )
-            next_state = CALK_1;
-        end
-      
-      CALK_1 :
-        begin
-          next_state = CALK_2;
-        end
-      
-      CALK_2 :
-        begin
-          next_state = CALK_3;
-        end
 
-      CALK_3 :
-        begin
-          next_state = CALK_0;
-        end
-      default :
-        begin
-          next_state = CALK_0;
-        end
-    endcase
-  end
+assign last_state = state - 1'b1;
+
 logic [4:0] x[2:0];
 logic [4:0] y[2:0];
+
 always_ff @( posedge clk_i or posedge rst_i )
   begin
     if( rst_i )
       begin
-        x[0] <= '0;
-        y[0] <= '0;
-
-        x[1] <= '0;
-        y[1] <= '0;
-
-        x[2] <= '0;
-        y[2] <= '0;
+        for( int i = 0; i < 3; i++ )
+          begin
+            x[i] <= '0;
+            y[i] <= '0;
+          end
       end
     else
       begin
         case( state )
-          CALK_0 :
+          CALC_0 :
             begin
               if( rect_val )
                 begin
@@ -142,7 +130,7 @@ always_ff @( posedge clk_i or posedge rst_i )
                 end
             end
           
-          CALK_1 :
+          CALC_1 :
             begin
               y[0] <= rect_1.y + rect_1.h;
  
@@ -151,7 +139,7 @@ always_ff @( posedge clk_i or posedge rst_i )
               y[2] <= rect_2.y2 + rect_2.h2;
             end
           
-          CALK_2 :
+          CALC_2 :
             begin
               x[0] <= rect_1.x + rect_1.w;
               
@@ -160,7 +148,7 @@ always_ff @( posedge clk_i or posedge rst_i )
               x[2] <= rect_2.x2 + rect_2.w2;
             end
 
-          CALK_3 :
+          CALC_3 :
             begin
               y[0] <= rect_1.y;
  
@@ -184,18 +172,22 @@ always_ff @( posedge clk_i or posedge rst_i )
   end
 
 logic [ADDR_WIDTH-1:0] addr [2:0][3:0];  
+
 always_ff @( posedge clk_i or posedge rst_i)
   begin
     for( int i = 0 ; i < 3; i++)
       begin
         if( rst_i )
-          addr[i][i] <= '0;
+          for( int j = 0; i < 4; i ++ )
+            addr[i][j] <= '0;
         else
-          addr[i][state-1'b1] <= ( 21 * y[i] ) + x[i];
+          addr[i][last_state] <= ( LENGHT_LINE * y[i] ) + x[i];
       end 
   end
 
 logic [3:0]cnt_addr;
+// Начинаем считать как только появился 1 адрес
+// Заканиваем как только адреса закончились
 always_ff @( posedge clk_i or posedge rst_i )
   begin
     if( rst_i )
@@ -204,7 +196,7 @@ always_ff @( posedge clk_i or posedge rst_i )
       begin
         if( cnt_addr != '0 || start_cnt_addr )
           cnt_addr = cnt_addr + 1'b1;
-        if( cnt_addr == 12 )
+        if( cnt_addr == POINT_CNT )
           cnt_addr = 0;
       end
   end
@@ -217,7 +209,7 @@ always_ff @( posedge clk_i or posedge rst_i )
       begin
         if( rect_val_i )
           wait_o <= 1'b1;
-        if( cnt_addr == 11 )
+        if( cnt_addr == ( POINT_CNT - 1 ) )
           wait_o <= 1'b0;
       end
   end
@@ -226,4 +218,6 @@ assign num_point_o = cnt_addr;
 assign addr_o      = addr[cnt_addr[3:2]][cnt_addr[1:0]];
 assign val_o       = ( cnt_addr != '0 ) || start_cnt_addr;
 assign weight_o    = { rect_2.weight1, rect_2.weight2 };
+
+
 endmodule
