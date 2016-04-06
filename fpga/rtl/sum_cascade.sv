@@ -63,6 +63,8 @@ mult_fp mult(
  Требуется 4 тактов для вычисления произведения чисел 
  float и +1 относительно thresholds_val_i
 */
+logic threshold_val;
+
 delay_signal #(
   .DATA_WIDTH  ( 1 ),
   .CLOCK_CNT   ( 5 )
@@ -95,8 +97,10 @@ comp_fp comp(
   .ageb  ( cond          )
 );
 
+logic        stage_sum_val;
 logic [31:0] stage_sum;
 logic [31:0] sum;
+
 
 add_fp _sum(
   .clock  ( clk_i       ),

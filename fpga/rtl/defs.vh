@@ -1,6 +1,14 @@
 `ifndef _defs
 `define _defs
 
+`define AVS_II_ADDR                   0
+`define AVS_VARIANCE_NORM_FACTOR_ADDR 1
+`define AVS_FLAGS_ADDR                2
+
+`define FLAG_NEW_COL 0
+`define FLAG_RESULT  30
+`define FLAG_READY   31
+
 `define LEFT_VAL  2'b01
 `define RIGHT_VAL 2'b10
 `define THRESHOLD 2'b00

@@ -72,6 +72,7 @@ comp_fp comp(
 );
 
 logic pause;
+logic done_stage;
 
 always_ff@( posedge clk_i or posedge rst_i )
   begin

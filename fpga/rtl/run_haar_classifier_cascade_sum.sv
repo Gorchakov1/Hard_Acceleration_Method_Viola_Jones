@@ -12,6 +12,8 @@ module run_haar_classifier_cascade_sum
                                  
   input                          start_i,
 
+  input                          offset_i,
+
   input [ADDR_WIDTH_II-1:0]      ii_addr_wr_i,
   input [31:0]                   ii_data_wr_i,
   input                          ii_val_wr_i,
@@ -118,7 +120,7 @@ ram #(
    .we                   ( ii_val_wr_i               ),
 	 .data                 ( ii_data_wr_i              ),
                                                     
-  .read_addr             ( ii_addr                   ),
+  .read_addr             ( ii_addr + offset_i        ),
   .q                     ( ii_data                   )
                                                    
 );
